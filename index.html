@@ -82,12 +82,13 @@
 }
 
 /* ── Chat containers ── */
-.chat-window         { background: rgba(8,11,16,0.97) !important; }
-.chat-messages-list  { background: transparent !important; }
+.chat-window         { background: rgba(8,11,16,0.97) !important; overscroll-behavior: contain !important; }
+.chat-messages-list  { background: transparent !important; overscroll-behavior: contain !important; overflow-y: auto !important; }
 .chat-header         { background: rgba(8,11,16,0.98) !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; }
 .chat-header *       { color: #ffffff !important; }
 .chat-input,
 .chat-inputs         { background: rgba(8,11,16,0.95) !important; border-top: 1px solid rgba(255,255,255,0.06) !important; }
+#n8n-chat            { overscroll-behavior: contain !important; }
 
 /* ── Send button ── */
 .chat-input button[class*="send"],
@@ -2273,6 +2274,16 @@ makeCardScene('canvas-service-3', (scene) => {
   });
   obs.observe(canvas);
 })();
+
+/* ── Prevent n8n chat from scrolling the page on Enter ── */
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  const chatEl = document.getElementById('n8n-chat');
+  if (chatEl && chatEl.contains(document.activeElement)) {
+    const savedY = window.scrollY;
+    setTimeout(function() { window.scrollTo({ top: savedY, behavior: 'instant' }); }, 0);
+  }
+}, true);
 
 </script>
 
