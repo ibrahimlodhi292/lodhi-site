@@ -2275,41 +2275,49 @@ makeCardScene('canvas-service-3', (scene) => {
   obs.observe(canvas);
 })();
 
-/* ── Lock page scroll whenever the n8n chat is being used ── */
-(function() {
-  function initScrollLock() {
+/* ── Prevent chat widget from auto-scrolling the page on new messages ── */
+(function () {
+  function initScrollFix() {
     const chatEl = document.getElementById('n8n-chat');
-    if (!chatEl) { setTimeout(initScrollLock, 400); return; }
+    if (!chatEl) { setTimeout(initScrollFix, 400); return; }
 
-    let savedY = window.scrollY;
-    let chatActive = false;
-    let lockTimer = null;
+    let userScrolling = false;
+    let wheelTimer;
 
-    /* Activate lock on any user interaction with the chat.
-       Keep it active for 6 s after the last interaction so the
-       async bot reply (which arrives later) is also covered. */
-    function activate() {
-      savedY = window.scrollY;
-      chatActive = true;
-      clearTimeout(lockTimer);
-      lockTimer = setTimeout(function() { chatActive = false; }, 6000);
-    }
+    /* Mark when the user is intentionally scrolling */
+    window.addEventListener('wheel',     function () {
+      userScrolling = true;
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(function () { userScrolling = false; }, 300);
+    }, { passive: true });
 
-    chatEl.addEventListener('focusin', activate);
-    chatEl.addEventListener('click',   activate);
-    chatEl.addEventListener('keydown', activate);
+    window.addEventListener('touchmove', function () {
+      userScrolling = true;
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(function () { userScrolling = false; }, 300);
+    }, { passive: true });
 
-    /* Any time the page scrolls while the lock is on, undo it instantly */
-    window.addEventListener('scroll', function() {
-      if (chatActive) {
-        window.scrollTo({ top: savedY, behavior: 'instant' });
-      } else {
-        savedY = window.scrollY;   /* user scrolled intentionally — update baseline */
-      }
-    }, { passive: false });
+    /* Watch for new nodes added inside the chat (new messages) */
+    const mo = new MutationObserver(function (mutations) {
+      const added = mutations.some(function (m) { return m.addedNodes.length > 0; });
+      if (!added) return;
+
+      const y = window.scrollY;   /* snapshot before the widget scrolls */
+
+      /* Two rAF frames gives the widget time to call its scroll, then we undo it */
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          if (!userScrolling && window.scrollY !== y) {
+            window.scrollTo({ top: y, behavior: 'instant' });
+          }
+        });
+      });
+    });
+
+    mo.observe(chatEl, { childList: true, subtree: true });
   }
 
-  initScrollLock();
+  initScrollFix();
 })();
 
 </script>
