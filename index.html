@@ -2275,15 +2275,41 @@ makeCardScene('canvas-service-3', (scene) => {
   obs.observe(canvas);
 })();
 
-/* ── Prevent n8n chat from scrolling the page on Enter ── */
-document.addEventListener('keydown', function(e) {
-  if (e.key !== 'Enter') return;
-  const chatEl = document.getElementById('n8n-chat');
-  if (chatEl && chatEl.contains(document.activeElement)) {
-    const savedY = window.scrollY;
-    setTimeout(function() { window.scrollTo({ top: savedY, behavior: 'instant' }); }, 0);
-  }
-}, true);
+/* ── Contain all scroll triggered by n8n chat widget ── */
+(function() {
+  /* 1. Intercept scrollIntoView for any element inside #n8n-chat
+        and redirect it to scroll the chat's own messages container */
+  const _scrollIntoView = Element.prototype.scrollIntoView;
+  Element.prototype.scrollIntoView = function(arg) {
+    const chatEl = document.getElementById('n8n-chat');
+    if (chatEl && chatEl.contains(this)) {
+      /* Walk up to find the nearest scrollable ancestor inside the chat */
+      let el = this.parentElement;
+      while (el && el !== chatEl) {
+        const oy = getComputedStyle(el).overflowY;
+        if (oy === 'auto' || oy === 'scroll') {
+          el.scrollTop = el.scrollHeight;
+          return;
+        }
+        el = el.parentElement;
+      }
+      /* Fallback: scroll the chat container itself */
+      chatEl.scrollTop = chatEl.scrollHeight;
+      return;
+    }
+    return _scrollIntoView.call(this, arg);
+  };
+
+  /* 2. Also guard the Enter key as a belt-and-suspenders backup */
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    const chatEl = document.getElementById('n8n-chat');
+    if (chatEl && chatEl.contains(document.activeElement)) {
+      const savedY = window.scrollY;
+      setTimeout(function() { window.scrollTo({ top: savedY, behavior: 'instant' }); }, 0);
+    }
+  }, true);
+})();
 
 </script>
 
