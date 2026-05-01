@@ -9,6 +9,94 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+
+<!-- n8n chat theme overrides — placed after CDN so they win the cascade -->
+<style id="n8n-overrides">
+/* ── Override n8n CSS variables at root so they cascade everywhere ── */
+:root {
+    --chat--color--primary: #00d4ff;
+    --chat--color--secondary: #7c3aff;
+    --chat--color-white: #ffffff;
+    --chat--color-light: rgba(255,255,255,0.04);
+    --chat--color-dark: #ffffff;
+    --chat--color-typing: rgba(255,255,255,0.55);
+    --chat--font-family: 'Space Mono', monospace;
+    --chat--header--background: rgba(8,11,16,0.98);
+    --chat--header--color: #ffffff;
+    --chat--body--background: rgba(8,11,16,0.97);
+    --chat--footer--background: rgba(8,11,16,0.95);
+    --chat--message--bot--background: rgba(255,255,255,0.05);
+    --chat--message--bot--color: #ffffff;
+    --chat--message--user--background: rgba(0,212,255,0.18);
+    --chat--message--user--color: #ffffff;
+    --chat--input--background: #0d1117;
+    --chat--input--text-color: #ffffff;
+    --chat--toggle--background: #00d4ff;
+    --chat--toggle--hover--background: #7c3aff;
+    --chat--toggle--color: #080b10;
+}
+
+/* ── User message bubble ── */
+.chat-message--from-user .chat-message__content {
+    background-color: rgba(0,212,255,0.18) !important;
+    border: 1px solid rgba(0,212,255,0.3) !important;
+    color: #ffffff !important;
+}
+/* Text inside user bubble — transparent so only one colour shows */
+.chat-message--from-user .chat-message__content p,
+.chat-message--from-user .chat-message__content span,
+.chat-message--from-user .chat-message__content div {
+    background: transparent !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+/* ── Bot message bubble ── */
+.chat-message--from-bot .chat-message__content {
+    background-color: rgba(255,255,255,0.05) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: #ffffff !important;
+}
+.chat-message--from-bot .chat-message__content p,
+.chat-message--from-bot .chat-message__content span,
+.chat-message--from-bot .chat-message__content div {
+    background: transparent !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+/* ── Input textarea ── */
+.chat-input textarea,
+.chat-input input,
+.chat-inputs textarea,
+.chat-inputs input {
+    background: #0d1117 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #00d4ff !important;
+}
+.chat-input textarea::placeholder,
+.chat-input input::placeholder {
+    color: rgba(255,255,255,0.35) !important;
+    -webkit-text-fill-color: rgba(255,255,255,0.35) !important;
+}
+
+/* ── Chat containers ── */
+.chat-window         { background: rgba(8,11,16,0.97) !important; }
+.chat-messages-list  { background: transparent !important; }
+.chat-header         { background: rgba(8,11,16,0.98) !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; }
+.chat-header *       { color: #ffffff !important; }
+.chat-input,
+.chat-inputs         { background: rgba(8,11,16,0.95) !important; border-top: 1px solid rgba(255,255,255,0.06) !important; }
+
+/* ── Send button ── */
+.chat-input button[class*="send"],
+.chat-inputs button[class*="send"] { color: #00d4ff !important; background: transparent !important; }
+
+/* ── Hide powered-by ── */
+[class*="powered-by"] { display: none !important; }
+</style>
+
 <style>
 :root {
   --bg: #080b10;
