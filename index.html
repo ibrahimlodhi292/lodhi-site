@@ -1072,9 +1072,9 @@ footer span { color: var(--cyan); }
     --chat--message--bot--background: rgba(255,255,255,0.04);
     --chat--message--bot--color: #ffffff;
     --chat--message--bot--border: 1px solid rgba(255,255,255,0.07);
-    --chat--message--user--background: rgba(0,212,255,0.13);
+    --chat--message--user--background: rgba(0,212,255,0.22);
     --chat--message--user--color: #ffffff;
-    --chat--message--user--border: 1px solid rgba(0,212,255,0.22);
+    --chat--message--user--border: 1px solid rgba(0,212,255,0.35);
     --chat--message--pre--background: rgba(0,212,255,0.06);
     --chat--messages-list--padding: 1rem;
 
@@ -1169,8 +1169,9 @@ footer span { color: var(--cyan); }
 #n8n-chat input,
 #n8n-chat textarea {
     background: rgba(255,255,255,0.05) !important;
-    color: #fff !important;
+    color: #ffffff !important;
     font-family: 'Space Mono', monospace !important;
+    caret-color: #00d4ff !important;
 }
 #n8n-chat input::placeholder,
 #n8n-chat textarea::placeholder {
@@ -1179,6 +1180,20 @@ footer span { color: var(--cyan); }
 #n8n-chat .n8n-chat__input {
     background: rgba(8,11,16,0.95) !important;
     border-top: 1px solid rgba(255,255,255,0.06) !important;
+}
+/* User message bubbles — hard override so text is always visible */
+#n8n-chat .chat-message--from-user .chat-message__text,
+#n8n-chat [class*="user"] .chat-message__text,
+#n8n-chat [class*="from-user"],
+#n8n-chat [class*="from-user"] * {
+    color: #ffffff !important;
+}
+#n8n-chat [class*="from-user"] [class*="text"],
+#n8n-chat [class*="from-user"] [class*="bubble"],
+#n8n-chat [class*="from-user"] [class*="message"] {
+    background: rgba(0,212,255,0.22) !important;
+    border: 1px solid rgba(0,212,255,0.35) !important;
+    color: #ffffff !important;
 }
 #n8n-chat .n8n-chat__send-button {
     color: #00d4ff !important;
@@ -2176,12 +2191,12 @@ makeCardScene('canvas-service-3', (scene) => {
     showWelcomeScreen: false,
     defaultLanguage: 'en',
     initialMessages: [
-      'Welcome to Bella Vista! 🍽️',
+      'Welcome to Olive Grove Restaurant! 🍽️',
       "I can help with reservations, menu questions, opening hours, and dish recommendations. How can I assist you today?"
     ],
     i18n: {
       en: {
-        title: 'Bella Vista AI Assistant',
+        title: 'Olive Grove AI Assistant',
         subtitle: 'Powered by n8n · Available 24/7',
         footer: '',
         getStarted: 'Start Conversation',
