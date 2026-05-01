@@ -2275,50 +2275,70 @@ makeCardScene('canvas-service-3', (scene) => {
   obs.observe(canvas);
 })();
 
-/* ── Prevent chat widget from auto-scrolling the page on new messages ── */
+/* ── Stop n8n chat from auto-scrolling the page ── */
 (function () {
-  function initScrollFix() {
-    const chatEl = document.getElementById('n8n-chat');
-    if (!chatEl) { setTimeout(initScrollFix, 400); return; }
 
-    let userScrolling = false;
-    let wheelTimer;
+  /* 1. Intercept scrollIntoView so chat elements scroll their own
+        container instead of the whole page */
+  var _siv = Element.prototype.scrollIntoView;
+  Element.prototype.scrollIntoView = function (opts) {
+    var chat = document.getElementById('n8n-chat');
+    if (chat && chat.contains(this)) {
+      var p = this.parentElement;
+      while (p && p !== chat) {
+        var oy = getComputedStyle(p).overflowY;
+        if (oy === 'auto' || oy === 'scroll') { p.scrollTop = p.scrollHeight; return; }
+        p = p.parentElement;
+      }
+      return; /* swallow — do not scroll page */
+    }
+    return _siv.apply(this, arguments);
+  };
 
-    /* Mark when the user is intentionally scrolling */
-    window.addEventListener('wheel',     function () {
-      userScrolling = true;
-      clearTimeout(wheelTimer);
-      wheelTimer = setTimeout(function () { userScrolling = false; }, 300);
-    }, { passive: true });
+  /* 2. MutationObserver + scroll-event lock for scrollTop-based scrolls */
+  function init() {
+    var chat = document.getElementById('n8n-chat');
+    if (!chat) { setTimeout(init, 400); return; }
 
-    window.addEventListener('touchmove', function () {
-      userScrolling = true;
-      clearTimeout(wheelTimer);
-      wheelTimer = setTimeout(function () { userScrolling = false; }, 300);
-    }, { passive: true });
+    var savedY    = window.scrollY;
+    var blocking  = false;
+    var blockT, scrollT;
+    var userScrolling = false;
 
-    /* Watch for new nodes added inside the chat (new messages) */
-    const mo = new MutationObserver(function (mutations) {
-      const added = mutations.some(function (m) { return m.addedNodes.length > 0; });
-      if (!added) return;
-
-      const y = window.scrollY;   /* snapshot before the widget scrolls */
-
-      /* Two rAF frames gives the widget time to call its scroll, then we undo it */
-      requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          if (!userScrolling && window.scrollY !== y) {
-            window.scrollTo({ top: y, behavior: 'instant' });
-          }
-        });
-      });
+    /* Wheel / touch = real user scroll → lift the lock immediately */
+    ['wheel', 'touchmove'].forEach(function (ev) {
+      window.addEventListener(ev, function () {
+        userScrolling = true;
+        blocking = false;          /* cancel any active block */
+        clearTimeout(scrollT);
+        scrollT = setTimeout(function () { userScrolling = false; }, 300);
+      }, { passive: true });
     });
 
-    mo.observe(chatEl, { childList: true, subtree: true });
+    /* Every time the chat adds a DOM node (new message / typing dots),
+       snapshot the current scroll and block the next programmatic scroll */
+    var mo = new MutationObserver(function (muts) {
+      if (userScrolling) return;
+      if (!muts.some(function (m) { return m.addedNodes.length > 0; })) return;
+      savedY   = window.scrollY;
+      blocking = true;
+      clearTimeout(blockT);
+      blockT = setTimeout(function () { blocking = false; }, 500);
+    });
+    mo.observe(chat, { childList: true, subtree: true });
+
+    /* If the page scrolled during a block → undo it instantly */
+    window.addEventListener('scroll', function () {
+      if (blocking) {
+        window.scrollTo({ top: savedY, behavior: 'instant' });
+      } else if (!userScrolling) {
+        savedY = window.scrollY;   /* update baseline on free scroll */
+      }
+    });
   }
 
-  initScrollFix();
-})();
+  init();
+}());
 
 </script>
 
