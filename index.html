@@ -1193,19 +1193,27 @@ footer span { color: var(--cyan); }
     background: rgba(8,11,16,0.97) !important;
     border-top: 1px solid rgba(255,255,255,0.06) !important;
 }
-/* User message bubbles — hard override so text is always visible */
-#n8n-chat .chat-message--from-user .chat-message__text,
-#n8n-chat [class*="user"] .chat-message__text,
+/* User message bubbles — force uniform dark cyan on every nested element */
 #n8n-chat [class*="from-user"],
-#n8n-chat [class*="from-user"] * {
+#n8n-chat [class*="from-user"] *,
+#n8n-chat [class*="user-message"],
+#n8n-chat [class*="user-message"] *,
+#n8n-chat .chat-message--from-user,
+#n8n-chat .chat-message--from-user *,
+#n8n-chat [class*="message"][class*="user"],
+#n8n-chat [class*="message"][class*="user"] * {
+    background: rgba(0,212,255,0.18) !important;
     color: #ffffff !important;
+    border-color: rgba(0,212,255,0.3) !important;
+    -webkit-text-fill-color: #ffffff !important;
 }
-#n8n-chat [class*="from-user"] [class*="text"],
-#n8n-chat [class*="from-user"] [class*="bubble"],
-#n8n-chat [class*="from-user"] [class*="message"] {
-    background: rgba(0,212,255,0.22) !important;
-    border: 1px solid rgba(0,212,255,0.35) !important;
-    color: #ffffff !important;
+/* Keep icons/avatars transparent inside user bubbles */
+#n8n-chat [class*="from-user"] svg,
+#n8n-chat [class*="from-user"] img,
+#n8n-chat .chat-message--from-user svg,
+#n8n-chat .chat-message--from-user img {
+    background: transparent !important;
+    border: none !important;
 }
 #n8n-chat .n8n-chat__send-button {
     color: #00d4ff !important;
