@@ -1095,7 +1095,7 @@ footer span { color: var(--cyan); }
     --chat--input--border: 0;
     --chat--input--border-radius: 0;
     --chat--input--padding: 0.7rem 0.9rem;
-    --chat--input--background: rgba(255,255,255,0.04);
+    --chat--input--background: #0d1117;
     --chat--input--text-color: #ffffff;
     --chat--input--line-height: 1.5;
     --chat--input--placeholder--font-size: 0.75rem;
@@ -1166,19 +1166,31 @@ footer span { color: var(--cyan); }
 #n8n-chat .chat-messages-list {
     background: transparent !important;
 }
+/* Input text — aggressive override for all possible selectors */
 #n8n-chat input,
-#n8n-chat textarea {
-    background: rgba(255,255,255,0.05) !important;
+#n8n-chat textarea,
+#n8n-chat .n8n-chat__input textarea,
+#n8n-chat .n8n-chat__input input,
+#n8n-chat [class*="input"] textarea,
+#n8n-chat [class*="input"] input,
+#n8n-chat [class*="textarea"] {
+    background: #0d1117 !important;
     color: #ffffff !important;
     font-family: 'Space Mono', monospace !important;
     caret-color: #00d4ff !important;
+    -webkit-text-fill-color: #ffffff !important;
 }
 #n8n-chat input::placeholder,
-#n8n-chat textarea::placeholder {
-    color: rgba(255,255,255,0.32) !important;
+#n8n-chat textarea::placeholder,
+#n8n-chat [class*="textarea"]::placeholder {
+    color: rgba(255,255,255,0.35) !important;
+    -webkit-text-fill-color: rgba(255,255,255,0.35) !important;
 }
-#n8n-chat .n8n-chat__input {
-    background: rgba(8,11,16,0.95) !important;
+#n8n-chat .n8n-chat__input,
+#n8n-chat .n8n-chat__footer,
+#n8n-chat [class*="footer"],
+#n8n-chat [class*="input-panel"] {
+    background: rgba(8,11,16,0.97) !important;
     border-top: 1px solid rgba(255,255,255,0.06) !important;
 }
 /* User message bubbles — hard override so text is always visible */
