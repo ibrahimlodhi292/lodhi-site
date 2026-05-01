@@ -2275,40 +2275,41 @@ makeCardScene('canvas-service-3', (scene) => {
   obs.observe(canvas);
 })();
 
-/* ── Contain all scroll triggered by n8n chat widget ── */
+/* ── Lock page scroll whenever the n8n chat is being used ── */
 (function() {
-  /* 1. Intercept scrollIntoView for any element inside #n8n-chat
-        and redirect it to scroll the chat's own messages container */
-  const _scrollIntoView = Element.prototype.scrollIntoView;
-  Element.prototype.scrollIntoView = function(arg) {
+  function initScrollLock() {
     const chatEl = document.getElementById('n8n-chat');
-    if (chatEl && chatEl.contains(this)) {
-      /* Walk up to find the nearest scrollable ancestor inside the chat */
-      let el = this.parentElement;
-      while (el && el !== chatEl) {
-        const oy = getComputedStyle(el).overflowY;
-        if (oy === 'auto' || oy === 'scroll') {
-          el.scrollTop = el.scrollHeight;
-          return;
-        }
-        el = el.parentElement;
-      }
-      /* Fallback: scroll the chat container itself */
-      chatEl.scrollTop = chatEl.scrollHeight;
-      return;
-    }
-    return _scrollIntoView.call(this, arg);
-  };
+    if (!chatEl) { setTimeout(initScrollLock, 400); return; }
 
-  /* 2. Also guard the Enter key as a belt-and-suspenders backup */
-  document.addEventListener('keydown', function(e) {
-    if (e.key !== 'Enter') return;
-    const chatEl = document.getElementById('n8n-chat');
-    if (chatEl && chatEl.contains(document.activeElement)) {
-      const savedY = window.scrollY;
-      setTimeout(function() { window.scrollTo({ top: savedY, behavior: 'instant' }); }, 0);
+    let savedY = window.scrollY;
+    let chatActive = false;
+    let lockTimer = null;
+
+    /* Activate lock on any user interaction with the chat.
+       Keep it active for 6 s after the last interaction so the
+       async bot reply (which arrives later) is also covered. */
+    function activate() {
+      savedY = window.scrollY;
+      chatActive = true;
+      clearTimeout(lockTimer);
+      lockTimer = setTimeout(function() { chatActive = false; }, 6000);
     }
-  }, true);
+
+    chatEl.addEventListener('focusin', activate);
+    chatEl.addEventListener('click',   activate);
+    chatEl.addEventListener('keydown', activate);
+
+    /* Any time the page scrolls while the lock is on, undo it instantly */
+    window.addEventListener('scroll', function() {
+      if (chatActive) {
+        window.scrollTo({ top: savedY, behavior: 'instant' });
+      } else {
+        savedY = window.scrollY;   /* user scrolled intentionally — update baseline */
+      }
+    }, { passive: false });
+  }
+
+  initScrollLock();
 })();
 
 </script>
