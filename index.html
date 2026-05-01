@@ -768,18 +768,171 @@ footer {
 }
 footer span { color: var(--cyan); }
 
+/* ─── TRUST SECTION ─────────────────────────────────── */
+#trust {
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+.trust-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto var(--spacing-lg);
+}
+.trust-header .section-label { justify-content: center; }
+.trust-header .section-label::before { display: none; }
+
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.trust-item {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.trust-item:hover {
+  transform: translateY(-6px);
+  border-color: rgba(0,212,255,0.4);
+  box-shadow: 0 16px 40px rgba(0,212,255,0.08);
+}
+
+.trust-icon {
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.trust-icon-cyan   { background: rgba(0,212,255,0.1); }
+.trust-icon-purple { background: rgba(124,58,255,0.1); }
+.trust-icon-green  { background: rgba(0,255,136,0.1); }
+.trust-icon-orange { background: rgba(255,140,0,0.1); }
+
+.trust-item-text h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+.trust-item-text p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* ─── TESTIMONIALS SECTION ──────────────────────────── */
+#testimonials {
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+.testimonials-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto var(--spacing-lg);
+}
+.testimonials-header .section-label { justify-content: center; }
+.testimonials-header .section-label::before { display: none; }
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.testimonial-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.testimonial-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(0,212,255,0.4);
+  box-shadow: 0 20px 50px rgba(0,212,255,0.1);
+}
+
+.testimonial-stars {
+  color: #ffd700;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+}
+
+.testimonial-quote {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+  position: relative;
+  flex: 1;
+}
+.testimonial-quote::before {
+  content: '\201C';
+  font-family: 'Syne', sans-serif;
+  font-size: 3rem;
+  color: var(--cyan);
+  opacity: 0.3;
+  line-height: 0;
+  vertical-align: -1rem;
+  margin-right: 0.15rem;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.testimonial-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  color: var(--white);
+}
+.testimonial-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+.testimonial-role {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
 /* ─── MOBILE ────────────────────────────────────────── */
 @media (max-width: 900px) {
   .cards-grid { grid-template-columns: 1fr; max-width: 480px; }
   .hero-content { grid-template-columns: 1fr; }
   .hero-stats { flex-direction: row; justify-content: space-around; }
   .stat-item { text-align: center; }
+  .trust-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; max-width: 480px; }
 }
 
 @media (max-width: 768px) {
   nav { padding: 1rem 1.5rem; }
   .nav-links { display: none; }
-  #services, #contact { padding: var(--spacing-lg) 1.5rem; }
+  #services, #contact, #trust, #testimonials { padding: var(--spacing-lg) 1.5rem; }
   .hero-content { padding: 0 1.5rem; padding-top: 6rem; }
   #cursor-dot, #cursor-ring { display: none; }
   body { cursor: auto; }
@@ -808,6 +961,8 @@ footer span { color: var(--cyan); }
     <li><a href="#hero">Home</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#services">Services</a></li>
+    <li><a href="#trust">Why Me</a></li>
+    <li><a href="#testimonials">Testimonials</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
 </nav>
@@ -972,6 +1127,99 @@ footer span { color: var(--cyan); }
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     WHY TRUST ME
+══════════════════════════════════════════════════ -->
+<section id="trust">
+  <div class="trust-header reveal">
+    <div class="section-label">Why Choose Me</div>
+    <h2 class="section-title">Why Businesses <span class="gradient-text">Trust & Work With Me</span></h2>
+    <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.8;">
+      I don't just deliver automation — I deliver outcomes. Here's what sets me apart from the rest.
+    </p>
+  </div>
+
+  <div class="trust-grid">
+    <div class="trust-item reveal" data-delay="0">
+      <div class="trust-icon trust-icon-cyan">⚡</div>
+      <div class="trust-item-text">
+        <h3>Fast, Measurable Results</h3>
+        <p>Businesses see real time savings within the first two weeks. No months-long rollouts — I ship working systems fast and you feel the impact immediately.</p>
+      </div>
+    </div>
+    <div class="trust-item reveal" data-delay="100">
+      <div class="trust-icon trust-icon-purple">🎯</div>
+      <div class="trust-item-text">
+        <h3>Built Around Your Business</h3>
+        <p>No copy-paste templates. Every system I build is designed around your exact workflow, your tools, and your goals — nothing generic, nothing wasted.</p>
+      </div>
+    </div>
+    <div class="trust-item reveal" data-delay="200">
+      <div class="trust-icon trust-icon-green">🔒</div>
+      <div class="trust-item-text">
+        <h3>Reliable & Always On</h3>
+        <p>The systems I deploy are rock-solid. Built with error handling, fallbacks, and monitoring so your automations run 24/7 without you babysitting them.</p>
+      </div>
+    </div>
+    <div class="trust-item reveal" data-delay="300">
+      <div class="trust-icon trust-icon-orange">🤝</div>
+      <div class="trust-item-text">
+        <h3>Transparent Communication</h3>
+        <p>You'll always know what's being built and why. I explain everything in plain English, keep you updated at every step, and never disappear mid-project.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════
+     TESTIMONIALS
+══════════════════════════════════════════════════ -->
+<section id="testimonials">
+  <div class="testimonials-header reveal">
+    <div class="section-label">Client Results</div>
+    <h2 class="section-title">What Clients <span class="gradient-text">Say</span></h2>
+    <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.8;">
+      Real feedback from business owners who've transformed their operations with AI automation.
+    </p>
+  </div>
+
+  <div class="testimonials-grid">
+    <div class="testimonial-card reveal" data-delay="0">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-quote">Ibrahim built us an AI receptionist that handles 80% of our inbound calls. We haven't missed a lead since. Absolute game changer for our agency.</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">JM</div>
+        <div>
+          <div class="testimonial-name">James M.</div>
+          <div class="testimonial-role">Founder, Digital Marketing Agency</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal" data-delay="150">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-quote">We went from spending 15 hours a week on manual data entry to zero. The workflow Ibrahim set up just works — flawlessly, every single day. ROI was immediate.</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">SR</div>
+        <div>
+          <div class="testimonial-name">Sarah R.</div>
+          <div class="testimonial-role">Operations Manager, E-commerce Brand</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal" data-delay="300">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-quote">I was skeptical about AI automation but Ibrahim walked me through everything clearly. ROI was obvious in week one. My team can finally focus on real client work.</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">AK</div>
+        <div>
+          <div class="testimonial-name">Ahmed K.</div>
+          <div class="testimonial-role">CEO, Real Estate Consulting</div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
