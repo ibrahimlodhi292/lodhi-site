@@ -755,7 +755,7 @@ section { position: relative; z-index: 2; }
 /* ─── CONTACT SECTION ───────────────────────────────── */
 #contact {
   position: relative;
-  padding: var(--spacing-xl) var(--spacing-lg);
+  padding: calc(var(--spacing-xl) * 1.2) var(--spacing-lg);
   overflow: hidden;
   text-align: center;
 }
@@ -764,99 +764,367 @@ section { position: relative; z-index: 2; }
   position: absolute;
   inset: 0;
   width: 100%; height: 100%;
-  opacity: 0.5;
+  opacity: 0.35;
+}
+
+.contact-bg-grid {
+  position: absolute;
+  inset: -50px;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 1;
+  animation: gridDrift 25s linear infinite;
+}
+@keyframes gridDrift {
+  0%   { transform: translate(0,0); }
+  100% { transform: translate(50px,50px); }
+}
+
+.contact-glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 2;
+}
+.contact-glow-1 {
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, rgba(0,212,255,0.1), transparent 70%);
+  top: -80px; left: 50%;
+  transform: translateX(-50%);
+  animation: cOrb1 12s ease-in-out infinite;
+}
+.contact-glow-2 {
+  width: 450px; height: 350px;
+  background: radial-gradient(ellipse, rgba(124,58,255,0.1), transparent 70%);
+  bottom: -60px; left: 50%;
+  transform: translateX(-50%);
+  animation: cOrb2 16s ease-in-out infinite;
+}
+@keyframes cOrb1 {
+  0%,100% { opacity:0.7; transform:translateX(-50%) scale(1); }
+  50%     { opacity:1;   transform:translateX(-50%) scale(1.18); }
+}
+@keyframes cOrb2 {
+  0%,100% { opacity:0.5; transform:translateX(-50%) scale(1); }
+  50%     { opacity:0.85; transform:translateX(-50%) scale(1.22); }
 }
 
 .contact-content {
   position: relative;
   z-index: 10;
-  max-width: 700px;
+  max-width: 660px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avail-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 1.1rem;
+  background: rgba(0,255,136,0.05);
+  border: 1px solid rgba(0,255,136,0.25);
+  border-radius: 100px;
+  font-size: 0.7rem;
+  color: var(--green);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.75rem;
+  animation: floatBadge 4s ease-in-out infinite;
+}
+@keyframes floatBadge {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-5px); }
 }
 
 .contact-headline {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  line-height: 1.1;
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
+  line-height: 1.06;
   margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
 }
 .contact-sub {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  line-height: 1.8;
-  margin-bottom: 3rem;
+  color: rgba(255,255,255,0.58);
+  font-family: 'Syne', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.9;
+  margin-bottom: 2.5rem;
+  max-width: 500px;
+}
+
+/* Glassmorphism card holding CTA */
+.contact-cta-card {
+  width: 100%;
+  max-width: 500px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(0,212,255,0.13);
+  border-radius: 20px;
+  padding: 2.25rem 2rem 2rem;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 0 80px rgba(0,212,255,0.04), inset 0 1px 0 rgba(255,255,255,0.05);
+  margin-bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+  animation: floatCard 7s ease-in-out infinite;
+  animation-delay: 0.3s;
+}
+@keyframes floatCard {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-6px); }
 }
 
 .cta-main {
   position: relative;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
-  padding: 1.1rem 3rem;
-  background: linear-gradient(135deg, var(--cyan), var(--purple));
+  padding: 1.1rem 2.5rem;
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 60%, #00d4ff 100%);
+  background-size: 200% 200%;
   color: var(--white);
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-family: 'Space Mono', monospace;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 700;
   cursor: none;
   overflow: hidden;
-  margin-bottom: 3rem;
-  transition: box-shadow 0.3s, transform 0.2s;
+  width: 100%;
+  letter-spacing: 0.03em;
+  transition: box-shadow 0.3s ease, transform 0.25s ease;
   text-decoration: none;
+  box-shadow: 0 4px 32px rgba(0,212,255,0.35), 0 0 80px rgba(124,58,255,0.15);
+  animation: gradShift 5s ease infinite;
+}
+@keyframes gradShift {
+  0%,100% { background-position: 0% 50%; }
+  50%     { background-position: 100% 50%; }
 }
 .cta-main::before {
   content: '';
   position: absolute;
   top: 0; left: -100%;
   width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: left 0.5s ease;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  transition: left 0.55s ease;
 }
 .cta-main:hover::before { left: 100%; }
 .cta-main:hover {
-  box-shadow: 0 8px 40px rgba(0,212,255,0.4), 0 0 80px rgba(124,58,255,0.2);
-  transform: translateY(-2px);
+  box-shadow: 0 12px 55px rgba(0,212,255,0.55), 0 0 110px rgba(124,58,255,0.3);
+  transform: translateY(-3px) scale(1.015);
 }
-.cta-main:active { transform: translateY(0) translateZ(-4px); box-shadow: 0 2px 10px rgba(0,212,255,0.2); }
+.cta-main:active {
+  transform: translateY(0) scale(0.99);
+  box-shadow: 0 3px 16px rgba(0,212,255,0.25);
+}
+.cta-arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  font-size: 1.1em;
+}
+.cta-main:hover .cta-arrow { transform: translateX(6px); }
+
+/* Trust indicators */
+.trust-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.2rem;
+}
+.trust-ind {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.38);
+  letter-spacing: 0.03em;
+}
+.trust-ind::before {
+  content: '✓ ';
+  color: var(--green);
+  font-weight: 700;
+}
+
+/* After booking steps */
+.after-booking {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 2.5rem;
+}
+.after-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  margin-bottom: 1.25rem;
+}
+.step-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1;
+}
+.step-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--cyan);
+  opacity: 0.6;
+  letter-spacing: 0.1em;
+}
+.step-text {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  line-height: 1.45;
+}
+.step-divider {
+  width: 32px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(0,212,255,0.35), rgba(124,58,255,0.35));
+  flex-shrink: 0;
+  margin-bottom: 0.9rem;
+}
 
 .contact-pills {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.7rem;
   flex-wrap: wrap;
 }
 .contact-pill {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.7rem 1.4rem;
-  border: 1px solid var(--glass-border);
+  gap: 0.55rem;
+  padding: 0.75rem 1.4rem;
+  border: 1px solid rgba(0,212,255,0.16);
   border-radius: 100px;
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.5);
   text-decoration: none;
-  background: var(--glass);
-  backdrop-filter: blur(10px);
-  transition: all 0.25s;
+  background: rgba(255,255,255,0.02);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.3s ease;
   cursor: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 }
-.contact-pill:hover { border-color: var(--cyan); color: var(--cyan); transform: translateY(-2px); }
-.pill-icon { font-size: 1rem; }
+.contact-pill:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0,212,255,0.06);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0,212,255,0.14), inset 0 1px 0 rgba(255,255,255,0.07);
+}
+.pill-icon {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+.contact-pill:hover .pill-icon { transform: scale(1.2) rotate(-6deg); }
 
 /* ─── FOOTER ────────────────────────────────────────── */
 footer {
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: 2rem;
-  border-top: 1px solid rgba(255,255,255,0.04);
-  color: var(--text-muted);
+  padding: 2.5rem 2rem 2rem;
+  color: rgba(255,255,255,0.25);
   font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+footer::before {
+  content: '';
+  display: block;
+  width: 180px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,0.45), transparent);
+  margin: 0 auto 2rem;
+  animation: glowSep 3.5s ease-in-out infinite;
+}
+@keyframes glowSep {
+  0%,100% { opacity:0.5; box-shadow:none; }
+  50%     { opacity:1;   box-shadow:0 0 14px rgba(0,212,255,0.45); }
 }
 footer span { color: var(--cyan); }
+footer p { transition: color 0.3s; }
+footer:hover p { color: rgba(255,255,255,0.45); }
+
+/* ─── CALENDLY MODAL ────────────────────────────────── */
+.cal-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.cal-modal.open {
+  opacity: 1;
+  pointer-events: all;
+}
+.cal-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(8,11,16,0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  cursor: pointer;
+}
+.cal-modal-inner {
+  position: relative;
+  z-index: 1;
+  width: min(780px, 95vw);
+  height: min(700px, 92vh);
+  background: rgba(10,14,20,0.98);
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 40px 130px rgba(0,0,0,0.65), 0 0 70px rgba(0,212,255,0.07);
+  transform: scale(0.9) translateY(24px);
+  transition: transform 0.38s cubic-bezier(0.34,1.56,0.64,1);
+}
+.cal-modal.open .cal-modal-inner { transform: scale(1) translateY(0); }
+.cal-close-btn {
+  position: absolute;
+  top: 0.9rem; right: 0.9rem;
+  z-index: 10;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: none;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.cal-close-btn:hover {
+  background: rgba(0,212,255,0.1);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.cal-iframe { width: 100%; height: 100%; border: none; display: block; }
 
 /* ─── TRUST SECTION ─────────────────────────────────── */
 #trust {
@@ -1343,6 +1611,12 @@ footer span { color: var(--cyan); }
   .card-canvas-wrap canvas { display: none; }
   .card-canvas-fallback { display: block; }
   #n8n-chat { height: 460px; --chat--window--height: 460px; }
+
+  .contact-cta-card { padding: 1.75rem 1.25rem; }
+  .step-list { gap: 0; }
+  .step-divider { width: 20px; }
+  .cal-modal-inner { border-radius: 14px; }
+  .contact-headline { font-size: clamp(2rem, 8vw, 2.8rem); }
 }
 </style>
 </head>
@@ -1665,21 +1939,59 @@ footer span { color: var(--cyan); }
 ══════════════════════════════════════════════════ -->
 <section id="contact">
   <canvas id="contact-canvas"></canvas>
+  <div class="contact-bg-grid"></div>
+  <div class="contact-glow-orb contact-glow-1"></div>
+  <div class="contact-glow-orb contact-glow-2"></div>
 
   <div class="contact-content reveal">
+
+    <div class="avail-badge">
+      <span class="badge-dot"></span> Available For New Projects
+    </div>
+
     <div class="section-label" style="justify-content:center;">
       Let's Build Together
     </div>
+
     <h2 class="contact-headline">
       Ready to Automate<br>Your <span class="gradient-text">Business?</span>
     </h2>
+
     <p class="contact-sub">
       Book a free 30-minute consultation and let's map out exactly which automations will save you the most time and money. No fluff, just results.
     </p>
 
-    <a href="https://calendly.com/ibrahimlodhi292/30min" target="_blank" rel="noopener noreferrer" class="cta-main">
-      Book Free Consultation →
-    </a>
+    <div class="contact-cta-card">
+      <button class="cta-main" id="open-calendly">
+        <span class="cta-text">Book Free Consultation</span>
+        <span class="cta-arrow">→</span>
+      </button>
+      <div class="trust-indicators">
+        <span class="trust-ind">Free 30-minute strategy session</span>
+        <span class="trust-ind">No obligation</span>
+        <span class="trust-ind">Personalized automation recommendations</span>
+      </div>
+    </div>
+
+    <div class="after-booking">
+      <p class="after-label">After Booking</p>
+      <div class="step-list">
+        <div class="step-item">
+          <span class="step-num">01</span>
+          <span class="step-text">Discovery<br>Call</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="step-item">
+          <span class="step-num">02</span>
+          <span class="step-text">Workflow<br>Analysis</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="step-item">
+          <span class="step-num">03</span>
+          <span class="step-text">AI Automation<br>Recommendations</span>
+        </div>
+      </div>
+    </div>
 
     <div class="contact-pills">
       <a href="mailto:ibrahimlodhi292@gmail.com" class="contact-pill">
@@ -1695,8 +2007,23 @@ footer span { color: var(--cyan); }
         <span class="pill-icon">📸</span> Atlas Intelligence
       </a>
     </div>
+
   </div>
 </section>
+
+<!-- Calendly Modal -->
+<div id="calendly-modal" class="cal-modal">
+  <div class="cal-modal-overlay" id="cal-overlay"></div>
+  <div class="cal-modal-inner">
+    <button class="cal-close-btn" id="cal-close-btn" aria-label="Close">✕</button>
+    <iframe
+      src="https://calendly.com/ibrahimlodhi292/30min?embed_type=Inline&hide_gdpr_banner=1&background_color=080b10&text_color=ffffff&primary_color=00d4ff"
+      class="cal-iframe"
+      title="Book a Free Consultation"
+      loading="lazy">
+    </iframe>
+  </div>
+</div>
 
 <footer>
   <p>© 2026 <span>Ibrahim Lodhi</span>. All rights reserved. Built with AI & ☕</p>
@@ -2339,6 +2666,30 @@ makeCardScene('canvas-service-3', (scene) => {
 
   init();
 }());
+
+/* ════════════════════════════════════════════════════
+   CALENDLY MODAL
+════════════════════════════════════════════════════ */
+(function() {
+  const modal   = document.getElementById('calendly-modal');
+  const openBtn = document.getElementById('open-calendly');
+  const closeBtn = document.getElementById('cal-close-btn');
+  const overlay  = document.getElementById('cal-overlay');
+
+  function openModal() {
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if (openBtn)  openBtn.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (overlay)  overlay.addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+})();
 
 </script>
 
