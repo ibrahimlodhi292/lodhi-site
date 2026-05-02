@@ -1194,6 +1194,17 @@ footer:hover p { color: rgba(255,255,255,0.45); }
 }
 .cal-iframe { width: 100%; height: 100%; border: none; display: block; }
 
+/* ─── AI AGENT CANVAS ───────────────────────────────── */
+#ai-agent-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 500;
+}
+@media (max-width: 900px) { #ai-agent-canvas { display: none; } }
+
 /* ─── TRUST SECTION ─────────────────────────────────── */
 #trust {
   padding: var(--spacing-xl) var(--spacing-lg);
@@ -1698,6 +1709,7 @@ footer:hover p { color: rgba(255,255,255,0.45); }
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div class="orb orb-3"></div>
+<canvas id="ai-agent-canvas"></canvas>
 
 <!-- NAV -->
 <nav id="nav">
@@ -2796,6 +2808,252 @@ makeCardScene('canvas-service-3', (scene) => {
   document.addEventListener('click', e => {
     if (!pill.contains(e.target)) popup.classList.remove('visible');
   });
+})();
+
+/* ════════════════════════════════════════════════════
+   3D AI AGENT
+════════════════════════════════════════════════════ */
+(function initAIAgent() {
+  const canvas = document.getElementById('ai-agent-canvas');
+  if (!canvas || window.innerWidth < 900) return;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+
+  let W = window.innerWidth, H = window.innerHeight;
+  renderer.setSize(W, H);
+
+  const scene = new THREE.Scene();
+  const FOV   = 50;
+  const camera = new THREE.PerspectiveCamera(FOV, W / H, 0.1, 100);
+  camera.position.set(0, 0, 12);
+
+  /* Convert normalised screen (0‑1) → world XY at camera z=12 looking at origin */
+  function s2w(nx, ny) {
+    const halfH = Math.tan((FOV * Math.PI / 180) / 2) * 12;
+    const halfW = halfH * (W / H);
+    return { x: (nx - 0.5) * 2 * halfW, y: -(ny - 0.5) * 2 * halfH };
+  }
+
+  /* ── Build Agent ── */
+  const agent = new THREE.Group();
+  scene.add(agent);
+
+  /* Core head — icosahedron */
+  const headGeo = new THREE.IcosahedronGeometry(0.62, 1);
+  const headMat = new THREE.MeshPhongMaterial({
+    color: 0x04090f, emissive: 0x001933,
+    shininess: 120, transparent: true, opacity: 0.92,
+  });
+  const head = new THREE.Mesh(headGeo, headMat);
+  agent.add(head);
+
+  /* Wireframe shell */
+  const wireMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, wireframe: true, transparent: true, opacity: 0.28 });
+  const wire    = new THREE.Mesh(headGeo, wireMat);
+  agent.add(wire);
+
+  /* Outer glowing shell — slightly larger, very transparent */
+  const shellGeo = new THREE.IcosahedronGeometry(0.78, 1);
+  const shellMat = new THREE.MeshBasicMaterial({ color: 0x7c3aff, wireframe: true, transparent: true, opacity: 0.1 });
+  const shell    = new THREE.Mesh(shellGeo, shellMat);
+  agent.add(shell);
+
+  /* Eyes */
+  const eyeGeo = new THREE.SphereGeometry(0.1, 10, 10);
+  const mkEye  = () => new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 1 });
+  const eyeL   = new THREE.Mesh(eyeGeo, mkEye()); eyeL.position.set(-0.21, 0.1, 0.54);
+  const eyeR   = new THREE.Mesh(eyeGeo, mkEye()); eyeR.position.set( 0.21, 0.1, 0.54);
+  agent.add(eyeL, eyeR);
+
+  /* Eye glow halos */
+  const hGeo = new THREE.SphereGeometry(0.18, 10, 10);
+  const mkH  = () => new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.12 });
+  const hL   = new THREE.Mesh(hGeo, mkH()); hL.position.copy(eyeL.position);
+  const hR   = new THREE.Mesh(hGeo, mkH()); hR.position.copy(eyeR.position);
+  agent.add(hL, hR);
+
+  /* Mouth line — thin box */
+  const mouthGeo = new THREE.BoxGeometry(0.28, 0.03, 0.03);
+  const mouthMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.55 });
+  const mouth    = new THREE.Mesh(mouthGeo, mouthMat);
+  mouth.position.set(0, -0.14, 0.56);
+  agent.add(mouth);
+
+  /* Orbital rings */
+  const mkRing = (r, tube, col, rx, ry) => {
+    const m = new THREE.Mesh(
+      new THREE.TorusGeometry(r, tube, 8, 90),
+      new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.5 })
+    );
+    m.rotation.x = rx; m.rotation.y = ry;
+    return m;
+  };
+  const ring1 = mkRing(1.0, 0.022, 0x7c3aff, Math.PI / 2.8, 0.3);
+  const ring2 = mkRing(1.15, 0.015, 0x00d4ff, Math.PI / 1.5, -0.5);
+  agent.add(ring1, ring2);
+
+  /* Antenna */
+  const antMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.65 });
+  const ant    = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.5, 6), antMat);
+  ant.position.set(0, 0.9, 0);
+  const tipMat = new THREE.MeshBasicMaterial({ color: 0x00ff88 });
+  const tip    = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 8), tipMat);
+  tip.position.set(0, 1.16, 0);
+  agent.add(ant, tip);
+
+  /* Holographic scan ring that pulses up/down */
+  const scanMat = new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.35 });
+  const scan    = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.01, 4, 60), scanMat);
+  agent.add(scan);
+
+  /* Orbiting particles */
+  const OP = 64;
+  const oBuf = new Float32Array(OP * 3);
+  const oA = [], oR = [], oS = [], oY = [];
+  for (let i = 0; i < OP; i++) {
+    oA.push(Math.random() * Math.PI * 2);
+    oR.push(0.9 + Math.random() * 0.65);
+    oS.push((Math.random() < 0.5 ? 1 : -1) * (0.018 + Math.random() * 0.022));
+    oY.push((Math.random() - 0.5) * 1.4);
+  }
+  const oGeo = new THREE.BufferGeometry();
+  oGeo.setAttribute('position', new THREE.BufferAttribute(oBuf, 3));
+  const oPts = new THREE.Points(oGeo, new THREE.PointsMaterial({ size: 0.055, color: 0x00d4ff, transparent: true, opacity: 0.65 }));
+  agent.add(oPts);
+
+  /* Lights */
+  scene.add(new THREE.AmbientLight(0x00d4ff, 0.4));
+  const pLight = new THREE.PointLight(0x00d4ff, 3, 15);
+  pLight.position.set(2, 3, 5);
+  scene.add(pLight);
+  const pLight2 = new THREE.PointLight(0x7c3aff, 2, 15);
+  pLight2.position.set(-2, -2, 4);
+  scene.add(pLight2);
+
+  /* Section target positions (nx, ny in 0‑1 screen space) */
+  const TARGETS = {
+    hero:         { nx: 0.88, ny: 0.72 },
+    about:        { nx: 0.10, ny: 0.50 },
+    services:     { nx: 0.90, ny: 0.52 },
+    trust:        { nx: 0.10, ny: 0.48 },
+    testimonials: { nx: 0.90, ny: 0.50 },
+    demo:         { nx: 0.10, ny: 0.42 },
+    contact:      { nx: 0.88, ny: 0.46 },
+  };
+
+  let txW = 0, tyW = 0, cxW = 0, cyW = 0;
+  let activeSection = 'hero';
+  const init = s2w(TARGETS.hero.nx, TARGETS.hero.ny);
+  txW = cxW = init.x; tyW = cyW = init.y;
+
+  /* IntersectionObserver — move agent when section enters viewport */
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        activeSection = id;
+        const t = TARGETS[id];
+        if (t) { const w = s2w(t.nx, t.ny); txW = w.x; tyW = w.y; }
+      }
+    });
+  }, { threshold: 0.35 });
+  document.querySelectorAll('section[id]').forEach(s => obs.observe(s));
+
+  /* Resize */
+  window.addEventListener('resize', () => {
+    W = window.innerWidth; H = window.innerHeight;
+    renderer.setSize(W, H);
+    camera.aspect = W / H;
+    camera.updateProjectionMatrix();
+    const w = s2w(TARGETS[activeSection]?.nx ?? 0.88, TARGETS[activeSection]?.ny ?? 0.5);
+    txW = w.x; tyW = w.y;
+  });
+
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.014;
+
+    /* Smooth position lerp */
+    cxW += (txW - cxW) * 0.035;
+    cyW += (tyW - cyW) * 0.035;
+    agent.position.x = cxW;
+    agent.position.y = cyW + Math.sin(t * 1.4) * 0.12;
+
+    /* Base rotation */
+    head.rotation.y += 0.007;
+    wire.rotation.y  = head.rotation.y;
+    shell.rotation.y -= 0.004;
+    shell.rotation.x += 0.002;
+    ring1.rotation.z += 0.01;
+    ring2.rotation.z -= 0.008;
+    ring2.rotation.x += 0.003;
+
+    /* Scan line sweep */
+    scan.position.y = Math.sin(t * 1.8) * 0.7;
+    scan.material.opacity = 0.15 + 0.2 * Math.abs(Math.sin(t * 1.8));
+
+    /* Eye pulse */
+    const ep = 0.8 + 0.2 * Math.sin(t * 2.8);
+    eyeL.material.opacity = eyeR.material.opacity = ep;
+    hL.material.opacity   = hR.material.opacity   = ep * 0.18;
+
+    /* Antenna tip colour cycle */
+    const hue = (t * 0.08) % 1;
+    tip.material.color.setHSL(hue < 0.5 ? 0.38 : 0.56, 1, 0.55 + 0.15 * Math.sin(t * 3));
+
+    /* Section-specific behaviour */
+    switch (activeSection) {
+      case 'hero':
+        /* Wave: oscillate head tilt left/right */
+        agent.rotation.z = Math.sin(t * 2.2) * 0.18;
+        agent.rotation.x = 0;
+        break;
+      case 'about':
+        /* Thinking: slow nod */
+        agent.rotation.x = Math.sin(t * 0.7) * 0.14;
+        agent.rotation.z = 0;
+        break;
+      case 'services':
+        /* Energetic: fast spin + tilt */
+        head.rotation.y += 0.012;
+        agent.rotation.z = Math.sin(t * 3.5) * 0.1;
+        break;
+      case 'trust':
+        /* Confident: upright, slight tilt */
+        agent.rotation.z = Math.sin(t * 1.0) * 0.06;
+        agent.rotation.x = Math.sin(t * 0.5) * 0.08;
+        break;
+      case 'demo':
+        /* Curious: lean forward/back */
+        agent.rotation.x = Math.sin(t * 1.5) * 0.16;
+        agent.rotation.z = 0;
+        break;
+      case 'contact':
+        /* Excited: bigger bounce + tilt */
+        agent.position.y += Math.sin(t * 3) * 0.06;
+        agent.rotation.z = Math.sin(t * 2.8) * 0.22;
+        break;
+      default:
+        agent.rotation.z *= 0.93;
+        agent.rotation.x *= 0.93;
+    }
+
+    /* Orbit particles */
+    for (let i = 0; i < OP; i++) {
+      oA[i] += oS[i];
+      oBuf[i * 3]     = Math.cos(oA[i]) * oR[i];
+      oBuf[i * 3 + 1] = oY[i] + Math.sin(t * 0.9 + i * 0.4) * 0.12;
+      oBuf[i * 3 + 2] = Math.sin(oA[i]) * oR[i];
+    }
+    oGeo.attributes.position.needsUpdate = true;
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
 })();
 
 </script>
