@@ -2943,23 +2943,47 @@ makeCardScene('canvas-service-3', (scene) => {
     contact:      { nx: 0.88, ny: 0.46 },
   };
 
-  let txW = 0, tyW = 0, cxW = 0, cyW = 0;
+  let cxW = 0, cyW = 0;
   let activeSection = 'hero';
-  const init = s2w(TARGETS.hero.nx, TARGETS.hero.ny);
-  txW = cxW = init.x; tyW = cyW = init.y;
 
-  /* IntersectionObserver — move agent when section enters viewport */
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        const id = e.target.id;
-        activeSection = id;
-        const t = TARGETS[id];
-        if (t) { const w = s2w(t.nx, t.ny); txW = w.x; tyW = w.y; }
-      }
+  /* Ordered section list for scroll interpolation */
+  const SECTION_IDS = ['hero','about','services','trust','testimonials','demo','contact'];
+
+  /* Ease-in-out so the agent decelerates at each stop */
+  function easeInOut(x) { return x < 0.5 ? 2*x*x : 1 - Math.pow(-2*x+2,2)/2; }
+
+  /* Read section tops once, refresh on resize */
+  let sectionTops = [];
+  function cacheSectionTops() {
+    sectionTops = SECTION_IDS.map(id => {
+      const el = document.getElementById(id);
+      return el ? el.offsetTop : 0;
     });
-  }, { threshold: 0.35 });
-  document.querySelectorAll('section[id]').forEach(s => obs.observe(s));
+  }
+  cacheSectionTops();
+
+  /* Derive target world-pos from scroll in real time */
+  function getScrollTarget() {
+    const sy = window.scrollY + window.innerHeight * 0.4;
+    let i = sectionTops.length - 1;
+    for (let k = 0; k < sectionTops.length - 1; k++) {
+      if (sy < sectionTops[k + 1]) { i = k; break; }
+    }
+    const next = Math.min(i + 1, sectionTops.length - 1);
+    const span = sectionTops[next] - sectionTops[i] || 1;
+    const raw  = (sy - sectionTops[i]) / span;
+    const p    = easeInOut(Math.max(0, Math.min(1, raw)));
+
+    activeSection = p > 0.55 ? SECTION_IDS[next] : SECTION_IDS[i];
+
+    const a = TARGETS[SECTION_IDS[i]];
+    const b = TARGETS[SECTION_IDS[next]];
+    return s2w(a.nx + (b.nx - a.nx) * p, a.ny + (b.ny - a.ny) * p);
+  }
+
+  /* Initialise position */
+  const initPos = getScrollTarget();
+  cxW = initPos.x; cyW = initPos.y;
 
   /* Resize */
   window.addEventListener('resize', () => {
@@ -2967,8 +2991,7 @@ makeCardScene('canvas-service-3', (scene) => {
     renderer.setSize(W, H);
     camera.aspect = W / H;
     camera.updateProjectionMatrix();
-    const w = s2w(TARGETS[activeSection]?.nx ?? 0.88, TARGETS[activeSection]?.ny ?? 0.5);
-    txW = w.x; tyW = w.y;
+    cacheSectionTops();
   });
 
   let t = 0;
@@ -2976,9 +2999,10 @@ makeCardScene('canvas-service-3', (scene) => {
     requestAnimationFrame(animate);
     t += 0.014;
 
-    /* Smooth position lerp */
-    cxW += (txW - cxW) * 0.035;
-    cyW += (tyW - cyW) * 0.035;
+    /* Target follows scroll exactly; lerp keeps motion fluid */
+    const tgt = getScrollTarget();
+    cxW += (tgt.x - cxW) * 0.055;
+    cyW += (tgt.y - cyW) * 0.055;
     agent.position.x = cxW;
     agent.position.y = cyW + Math.sin(t * 1.4) * 0.12;
 
