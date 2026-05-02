@@ -116,7 +116,7 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 
 body {
   background: var(--bg);
@@ -1666,36 +1666,219 @@ footer:hover p { color: rgba(255,255,255,0.45); }
     display: none !important;
 }
 
+/* ─── HAMBURGER BUTTON ──────────────────────────────── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  z-index: 1100;
+  flex-shrink: 0;
+}
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--white);
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform-origin: center;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Overlay behind open mobile menu */
+.nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(8,11,16,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 997;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.nav-overlay.open { opacity: 1; }
+
 /* ─── MOBILE ────────────────────────────────────────── */
+
+/* 900 px — tablet collapse */
 @media (max-width: 900px) {
-  .cards-grid { grid-template-columns: 1fr; max-width: 480px; }
-  .hero-content { grid-template-columns: 1fr; }
-  .hero-stats { flex-direction: row; justify-content: space-around; }
-  .stat-item { text-align: center; }
-  .trust-grid { grid-template-columns: 1fr; }
-  .testimonials-grid { grid-template-columns: 1fr; max-width: 480px; }
-  .demo-inner { grid-template-columns: 1fr; gap: 3rem; }
-  .demo-left { max-width: 100%; }
+  .hero-content   { grid-template-columns: 1fr; }
+  .about-inner    { grid-template-columns: 1fr; gap: 2.5rem; }
+  .about-image-col { order: -1; }
+  .about-img-frame { width: 260px; height: 320px; }
+  .cards-grid     { grid-template-columns: 1fr; max-width: 100%; }
+  .trust-grid     { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; max-width: 100%; }
+  .demo-inner     { grid-template-columns: 1fr; gap: 2.5rem; }
+  .demo-left      { max-width: 100%; }
+  .hero-stats     { flex-direction: row; justify-content: space-around; }
+  .stat-item      { text-align: center; }
+  #ai-agent-canvas { display: none; }
 }
 
+/* 768 px — phone */
 @media (max-width: 768px) {
-  nav { padding: 1rem 1.5rem; }
-  .nav-links { display: none; }
-  #services, #contact, #trust, #testimonials, #demo { padding: var(--spacing-lg) 1.5rem; }
-  .hero-content { padding: 0 1.5rem; padding-top: 6rem; }
+
+  /* ── Cursor off ── */
   #cursor-dot, #cursor-ring { display: none; }
-  body { cursor: auto; }
+  body   { cursor: auto; }
   a, button { cursor: pointer; }
 
+  /* ── Nav ── */
+  nav {
+    padding: 1rem 1.25rem;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+  }
+  .nav-hamburger { display: flex; }
+  .nav-overlay   { display: block; pointer-events: none; }
+  .nav-overlay.open { pointer-events: all; }
+
+  .nav-links {
+    position: fixed;
+    top: 0; right: -100%;
+    width: min(300px, 82vw);
+    height: 100dvh;
+    background: rgba(8,11,16,0.98);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-left: 1px solid rgba(0,212,255,0.12);
+    flex-direction: column;
+    padding: 5rem 2rem 2.5rem;
+    gap: 0;
+    list-style: none;
+    transition: right 0.38s cubic-bezier(0.4,0,0.2,1);
+    z-index: 998;
+    box-shadow: -20px 0 60px rgba(0,0,0,0.4);
+  }
+  .nav-links.open { right: 0; }
+  .nav-links li { border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .nav-links li:last-child { border-bottom: none; }
+  .nav-links a {
+    display: block;
+    padding: 1rem 0;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.65);
+    text-decoration: none;
+    transition: color 0.2s, padding-left 0.2s;
+  }
+  .nav-links a:hover, .nav-links a:active { color: var(--cyan); padding-left: 0.5rem; }
+
+  /* ── Hero ── */
+  #hero { min-height: 100dvh; }
+  .hero-content {
+    padding: 0 1.25rem;
+    padding-top: 5.5rem;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .hero-name        { line-height: 1.08; }
+  .hero-subheading  { font-size: 0.85rem; line-height: 1.75; }
+  .hero-typewriter  { font-size: 0.95rem; min-height: 1.8em; }
+  .hero-ctas        { flex-direction: column; gap: 0.75rem; }
+  .hero-ctas .btn   { width: 100%; justify-content: center; min-height: 52px; font-size: 0.85rem; }
+  .hero-stats       { flex-wrap: wrap; gap: 1rem 0; }
+  .stat-number      { font-size: clamp(1.6rem, 6vw, 2.5rem); }
+  .hero-eyebrow     { font-size: 0.68rem; }
+
+  /* ── Section padding ── */
+  #about, #services, #contact, #trust, #testimonials, #demo {
+    padding: var(--spacing-lg) 1.25rem;
+  }
+
+  /* ── Section titles ── */
+  .section-title  { font-size: clamp(1.7rem, 7vw, 2.4rem); }
+  .contact-headline { font-size: clamp(1.8rem, 8vw, 2.6rem); }
+
+  /* ── About ── */
+  .about-img-frame  { width: 220px; height: 280px; margin: 0 auto; }
+  .about-bio        { font-size: 0.85rem; }
+
+  /* ── Services ── */
+  .services-header .section-title { font-size: clamp(1.7rem, 7vw, 2.4rem); }
   .card-canvas-wrap canvas { display: none; }
   .card-canvas-fallback { display: block; }
-  #n8n-chat { height: 460px; --chat--window--height: 460px; }
+  .service-card:hover { transform: none; box-shadow: none; }
 
-  .contact-cta-card { padding: 1.75rem 1.25rem; }
-  .step-list { gap: 0; }
-  .step-divider { width: 20px; }
-  .cal-modal-inner { border-radius: 14px; }
-  .contact-headline { font-size: clamp(2rem, 8vw, 2.8rem); }
+  /* ── Trust ── */
+  .trust-item   { flex-direction: row; align-items: flex-start; }
+  .trust-icon   { flex-shrink: 0; }
+
+  /* ── Testimonials ── */
+  .testimonial-card:hover { transform: none; }
+
+  /* ── Demo / Chatbot ── */
+  .demo-inner   { gap: 1.75rem; }
+  .demo-left    { max-width: 100%; }
+  #n8n-chat     { height: 420px; --chat--window--height: 420px; }
+  .chat-window-wrap::before { border-radius: 14px; }
+
+  /* ── Contact ── */
+  .contact-sub   { font-size: 0.88rem; }
+  .contact-cta-card { padding: 1.5rem 1.1rem; max-width: 100%; }
+  .cta-main      { font-size: 0.85rem; padding: 1rem 1.25rem; min-height: 52px; }
+  .contact-pills { gap: 0.6rem; }
+  .contact-pill  { padding: 0.75rem 1rem; font-size: 0.75rem; min-height: 48px; }
+  .after-booking { max-width: 100%; }
+  .step-divider  { width: 20px; }
+  .trust-ind     { font-size: 0.68rem; }
+
+  /* ── Calendly modal ── */
+  .cal-modal-inner {
+    width: 96vw;
+    height: 88dvh;
+    border-radius: 14px;
+  }
+  .cal-close-btn { cursor: pointer; }
+
+  /* ── Email popup — flip to open downward on mobile ── */
+  .email-popup {
+    bottom: auto;
+    top: calc(100% + 10px);
+    transform: translateX(-50%) translateY(-6px);
+    left: 0;
+    transform: translateY(-6px);
+    right: 0;
+    width: max-content;
+    max-width: 90vw;
+  }
+  .email-popup.visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: all;
+  }
+  .email-popup::after { display: none; }
+
+  /* ── Background orbs — smaller on mobile ── */
+  .orb-1 { width: 280px; height: 280px; }
+  .orb-2 { width: 240px; height: 240px; }
+  .orb-3 { width: 180px; height: 180px; }
+
+  /* ── Footer ── */
+  footer { padding: 2rem 1.25rem 1.5rem; }
+}
+
+/* 480 px — small phones */
+@media (max-width: 480px) {
+  .hero-content   { padding-top: 5rem; }
+  .hero-ctas .btn { font-size: 0.82rem; }
+  .contact-pills  { flex-direction: column; align-items: stretch; }
+  .contact-pill   { justify-content: center; }
+  .trust-indicators { flex-direction: column; align-items: center; gap: 0.3rem; }
+  .step-text      { font-size: 0.65rem; }
+  .stat-number    { font-size: clamp(1.4rem, 7vw, 2rem); }
+  .about-img-frame { width: 180px; height: 240px; }
+  nav             { padding: 0.875rem 1rem; }
+  .email-popup    { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
 }
 </style>
 </head>
@@ -1711,10 +1894,13 @@ footer:hover p { color: rgba(255,255,255,0.45); }
 <div class="orb orb-3"></div>
 <canvas id="ai-agent-canvas"></canvas>
 
+<!-- Nav overlay (mobile) -->
+<div class="nav-overlay" id="nav-overlay"></div>
+
 <!-- NAV -->
 <nav id="nav">
   <div class="nav-logo">IL.</div>
-  <ul class="nav-links">
+  <ul class="nav-links" id="nav-links">
     <li><a href="#hero">Home</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#services">Services</a></li>
@@ -1723,6 +1909,11 @@ footer:hover p { color: rgba(255,255,255,0.45); }
     <li><a href="#demo">Live Demo</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 </nav>
 
 <!-- ══════════════════════════════════════════════════
@@ -2752,6 +2943,42 @@ makeCardScene('canvas-service-3', (scene) => {
 
   init();
 }());
+
+/* ════════════════════════════════════════════════════
+   HAMBURGER MENU
+════════════════════════════════════════════════════ */
+(function() {
+  const hamburger = document.getElementById('nav-hamburger');
+  const navLinks  = document.getElementById('nav-links');
+  const overlay   = document.getElementById('nav-overlay');
+  if (!hamburger) return;
+
+  function openMenu() {
+    hamburger.classList.add('open');
+    navLinks.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    hamburger.setAttribute('aria-expanded', 'true');
+  }
+  function closeMenu() {
+    hamburger.classList.remove('open');
+    navLinks.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    hamburger.setAttribute('aria-expanded', 'false');
+  }
+
+  hamburger.addEventListener('click', () => {
+    navLinks.classList.contains('open') ? closeMenu() : openMenu();
+  });
+  overlay.addEventListener('click', closeMenu);
+
+  /* Close when a nav link is tapped */
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+
+  /* Close on Escape */
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+})();
 
 /* ════════════════════════════════════════════════════
    CALENDLY MODAL
