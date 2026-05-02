@@ -1038,6 +1038,74 @@ section { position: relative; z-index: 2; }
 }
 .contact-pill:hover .pill-icon { transform: scale(1.2) rotate(-6deg); }
 
+/* ─── EMAIL POPUP ───────────────────────────────────── */
+.email-pill-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.email-popup {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  background: rgba(10,14,20,0.97);
+  border: 1px solid rgba(0,212,255,0.25);
+  border-radius: 12px;
+  padding: 0.85rem 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,212,255,0.08);
+  z-index: 100;
+}
+.email-popup::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(0,212,255,0.25);
+}
+.email-popup.visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateX(-50%) translateY(0);
+}
+.email-popup-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.02em;
+}
+.email-copy-btn {
+  background: rgba(0,212,255,0.1);
+  border: 1px solid rgba(0,212,255,0.3);
+  border-radius: 6px;
+  color: var(--cyan);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.68rem;
+  padding: 0.3rem 0.65rem;
+  cursor: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+.email-copy-btn:hover {
+  background: rgba(0,212,255,0.18);
+  border-color: var(--cyan);
+}
+.email-copy-btn.copied {
+  background: rgba(0,255,136,0.1);
+  border-color: var(--green);
+  color: var(--green);
+}
+
 /* ─── FOOTER ────────────────────────────────────────── */
 footer {
   position: relative;
@@ -1994,9 +2062,15 @@ footer:hover p { color: rgba(255,255,255,0.45); }
     </div>
 
     <div class="contact-pills">
-      <a href="mailto:ibrahimlodhi292@gmail.com" class="contact-pill">
-        <span class="pill-icon">✉️</span> Email Me
-      </a>
+      <div class="email-pill-wrap">
+        <button class="contact-pill" id="email-pill">
+          <span class="pill-icon">✉️</span> Email Me
+        </button>
+        <div class="email-popup" id="email-popup">
+          <span class="email-popup-text">ibrahimlodhi292@gmail.com</span>
+          <button class="email-copy-btn" id="email-copy-btn">Copy</button>
+        </div>
+      </div>
       <a href="https://wa.me/1234567890" class="contact-pill">
         <span class="pill-icon">💬</span> WhatsApp
       </a>
@@ -2689,6 +2763,39 @@ makeCardScene('canvas-service-3', (scene) => {
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
   if (overlay)  overlay.addEventListener('click', closeModal);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+})();
+
+/* ════════════════════════════════════════════════════
+   EMAIL COPY POPUP
+════════════════════════════════════════════════════ */
+(function() {
+  const pill    = document.getElementById('email-pill');
+  const popup   = document.getElementById('email-popup');
+  const copyBtn = document.getElementById('email-copy-btn');
+  const email   = 'ibrahimlodhi292@gmail.com';
+
+  if (!pill) return;
+
+  pill.addEventListener('click', e => {
+    e.stopPropagation();
+    popup.classList.toggle('visible');
+  });
+
+  copyBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(email).then(() => {
+      copyBtn.textContent = 'Copied!';
+      copyBtn.classList.add('copied');
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+        copyBtn.classList.remove('copied');
+      }, 2000);
+    });
+  });
+
+  document.addEventListener('click', e => {
+    if (!pill.contains(e.target)) popup.classList.remove('visible');
+  });
 })();
 
 </script>
