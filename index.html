@@ -10,6 +10,9 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
 <link rel="dns-prefetch" href="https://atlasi1.app.n8n.cloud">
+<!-- n8n chat CSS — preloaded so it never injects mid-scroll causing style recalculation -->
+<link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css"></noscript>
 
 <!-- Fonts with font-display:swap so text shows instantly -->
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -1945,11 +1948,7 @@ footer:hover p { color: rgba(255,255,255,0.45); }
   .btn:active          { opacity: 0.8 !important; }
   .cta-main:active     { opacity: 0.85 !important; transform: scale(0.98) !important; }
 
-  /* Defer paint for off-screen sections */
-  #trust, #testimonials {
-    content-visibility: auto;
-    contain-intrinsic-size: 0 600px;
-  }
+  /* content-visibility removed — caused layout spike when scrolling into view */
 }
 
 /* ─── MOBILE CHATBOT ────────────────────────────────── */
@@ -2481,6 +2480,9 @@ window.addEventListener('scroll', () => {
 ════════════════════════════════════════════════════ */
 (function typewriter() {
   const el = document.getElementById('typewriter');
+  if (!el) return;
+  /* Skip on mobile — recurring setTimeouts block the main thread and stall scroll */
+  if (IS_MOBILE) { el.textContent = 'Automate Operations. Save Time. Scale Faster.'; return; }
   const phrases = [
     'Automate Operations. Save Time. Scale Faster.',
     'I Build AI Workflows.',
@@ -2507,6 +2509,8 @@ window.addEventListener('scroll', () => {
    COUNTER ANIMATION
 ════════════════════════════════════════════════════ */
 function animateCounter(el) {
+  /* Skip on mobile — setInterval at 16ms blocks main thread and stalls scroll */
+  if (IS_MOBILE) { el.textContent = el.dataset.target; return; }
   const target = parseInt(el.dataset.target);
   const duration = 2000;
   const step = target / (duration / 16);
@@ -3443,13 +3447,7 @@ makeCardScene('canvas-service-3', (scene) => {
     if (loaded) return;
     loaded = true;
 
-    /* Load CSS first */
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css';
-    document.head.appendChild(link);
-
-    /* Then load + init the widget */
+    /* CSS is already preloaded in <head> — only lazy-load the JS bundle */
     var script = document.createElement('script');
     script.type = 'module';
     script.textContent = `
