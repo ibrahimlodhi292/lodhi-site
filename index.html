@@ -1918,17 +1918,33 @@ footer:hover p { color: rgba(255,255,255,0.45); }
   .email-popup      { background: rgba(10,14,20,0.99) !important; }
   .cal-modal-inner  { background: rgba(10,14,20,0.99) !important; }
 
+  /* Remove GPU-expensive fixed compositor layers — biggest mobile perf killers */
+  body::before, body::after { display: none !important; }
+  .orb              { display: none !important; }
+
   /* Stop all decorative animations */
   .contact-bg-grid,
   .contact-glow-1,
   .contact-glow-2   { display: none !important; }
-  .orb              { animation: none !important; filter: blur(50px) !important; }
+  .about-img-glow   { animation: none !important; }
+  .cursor-blink     { animation: none !important; opacity: 1 !important; }
   .avail-badge,
   .contact-cta-card,
   .badge-dot,
   .scroll-line,
   footer::before    { animation: none !important; }
   .chat-window-wrap::before { animation: none !important; }
+
+  /* Disable smooth scroll — fights iOS touch inertia */
+  html { scroll-behavior: auto !important; }
+
+  /* Remove 3D stacking contexts that force GPU compositing per element */
+  .hero-stats   { transform-style: flat !important; }
+  .cards-grid   { perspective: none !important; }
+  .service-card { transform-style: flat !important; }
+
+  /* Replace 3D flip animations with simple fades — no rotateY/rotateX GPU layers */
+  .stat-item    { animation: fadeSlideUp 0.6s ease forwards !important; }
 
   /* Static CTA gradient — no animated shift */
   .cta-main {
@@ -2463,6 +2479,8 @@ window.addEventListener('scroll', () => {
    HERO NAME — SPLIT CHARS
 ════════════════════════════════════════════════════ */
 (function splitName() {
+  /* Skip 3D char animation on mobile — creates 13 GPU compositor layers */
+  if (IS_MOBILE) return;
   const el = document.getElementById('hero-name-text');
   const text = el.textContent;
   el.innerHTML = '';
