@@ -4,11 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ibrahim Lodhi — AI Automation Expert</title>
+<!-- DNS / connection hints -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://atlasi1.app.n8n.cloud">
+
+<!-- Fonts with font-display:swap so text shows instantly -->
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+
+<!-- Three.js — desktop only (skip ~150 KB parse on mobile) -->
+<script>
+(function(){
+  var mob = window.innerWidth < 900 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  if (mob) return;
+  document.write('\x3Cscript src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"\x3E\x3C\/script\x3E');
+})();
+</script>
 
 <!-- n8n chat theme overrides — placed after CDN so they win the cascade -->
 <style id="n8n-overrides">
@@ -3405,42 +3418,65 @@ makeCardScene('canvas-service-3', (scene) => {
 </script>
 
 <!-- ══════════════════════════════════════════════════
-     n8n CHAT WIDGET
-     Replace webhookUrl with your Production Webhook URL
-     from the Webhook node in your n8n workflow.
+     n8n CHAT WIDGET — lazy loaded when demo section
+     scrolls into view (saves ~300 KB on initial load)
 ══════════════════════════════════════════════════ -->
-<script type="module">
-  import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+<script>
+(function () {
+  var loaded = false;
 
-  createChat({
-    webhookUrl: 'https://atlasi1.app.n8n.cloud/webhook/385bfa1a-eaff-41bc-a21c-79a8a2661e0b/chat',
-    webhookConfig: {
-      method: 'POST',
-      headers: {}
-    },
-    target: '#n8n-chat',
-    mode: 'fullscreen',
-    chatInputKey: 'chatInput',
-    chatSessionKey: 'sessionId',
-    loadPreviousSession: true,
-    metadata: {},
-    showWelcomeScreen: false,
-    defaultLanguage: 'en',
-    initialMessages: [
-      'Welcome to Olive Grove Restaurant! 🍽️',
-      "I can help with reservations, menu questions, opening hours, and dish recommendations. How can I assist you today?"
-    ],
-    i18n: {
-      en: {
-        title: 'Olive Grove AI Assistant',
-        subtitle: 'Powered by n8n · Available 24/7',
-        footer: '',
-        getStarted: 'Start Conversation',
-        inputPlaceholder: 'Ask about our menu, hours, or book a table...',
-      },
-    },
-    enableStreaming: false,
-  });
+  function loadChat() {
+    if (loaded) return;
+    loaded = true;
+
+    /* Load CSS first */
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css';
+    document.head.appendChild(link);
+
+    /* Then load + init the widget */
+    var script = document.createElement('script');
+    script.type = 'module';
+    script.textContent = `
+      import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+      createChat({
+        webhookUrl: 'https://atlasi1.app.n8n.cloud/webhook/385bfa1a-eaff-41bc-a21c-79a8a2661e0b/chat',
+        webhookConfig: { method: 'POST', headers: {} },
+        target: '#n8n-chat',
+        mode: 'fullscreen',
+        chatInputKey: 'chatInput',
+        chatSessionKey: 'sessionId',
+        loadPreviousSession: true,
+        metadata: {},
+        showWelcomeScreen: false,
+        defaultLanguage: 'en',
+        initialMessages: [
+          'Welcome to Olive Grove Restaurant! 🍽️',
+          'I can help with reservations, menu questions, opening hours, and dish recommendations. How can I assist you today?'
+        ],
+        i18n: { en: {
+          title: 'Olive Grove AI Assistant',
+          subtitle: 'Powered by n8n · Available 24/7',
+          footer: '',
+          getStarted: 'Start Conversation',
+          inputPlaceholder: 'Ask about our menu, hours, or book a table...',
+        }},
+        enableStreaming: false,
+      });
+    `;
+    document.body.appendChild(script);
+  }
+
+  /* Trigger when demo section is 300 px from viewport */
+  var demo = document.getElementById('demo');
+  if (!demo) { loadChat(); return; }
+
+  var obs = new IntersectionObserver(function (entries) {
+    if (entries[0].isIntersecting) { obs.disconnect(); loadChat(); }
+  }, { rootMargin: '300px' });
+  obs.observe(demo);
+})();
 </script>
 </body>
 </html>
