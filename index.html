@@ -1880,6 +1880,93 @@ footer:hover p { color: rgba(255,255,255,0.45); }
   nav             { padding: 0.875rem 1rem; }
   .email-popup    { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
 }
+
+/* ─── MOBILE PERFORMANCE ────────────────────────────── */
+@media (max-width: 900px) {
+
+  /* Kill backdrop-filter — biggest GPU drain on mobile */
+  nav, .nav-links, .nav-overlay,
+  .contact-cta-card, .contact-pill,
+  .email-popup, .cal-modal-overlay { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+  nav               { background: rgba(8,11,16,0.97)  !important; }
+  .nav-links        { background: rgba(8,11,16,0.99)  !important; }
+  .nav-overlay      { background: rgba(8,11,16,0.82)  !important; }
+  .contact-cta-card { background: rgba(10,14,20,0.96) !important; }
+  .contact-pill     { background: rgba(12,16,22,0.92) !important; }
+  .email-popup      { background: rgba(10,14,20,0.99) !important; }
+  .cal-modal-inner  { background: rgba(10,14,20,0.99) !important; }
+
+  /* Stop all decorative animations */
+  .contact-bg-grid,
+  .contact-glow-1,
+  .contact-glow-2   { display: none !important; }
+  .orb              { animation: none !important; filter: blur(50px) !important; }
+  .avail-badge,
+  .contact-cta-card,
+  .badge-dot,
+  .scroll-line,
+  footer::before    { animation: none !important; }
+  .chat-window-wrap::before { animation: none !important; }
+
+  /* Static CTA gradient — no animated shift */
+  .cta-main {
+    animation: none !important;
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 100%) !important;
+    background-size: 100% !important;
+    box-shadow: 0 4px 20px rgba(0,212,255,0.3) !important;
+  }
+  .contact-cta-card { box-shadow: none !important; }
+
+  /* Disable hover transforms — use :active for touch feedback */
+  .service-card:hover,
+  .trust-item:hover,
+  .testimonial-card:hover,
+  .contact-pill:hover { transform: none !important; box-shadow: none !important; }
+  .contact-pill:active { border-color: var(--cyan) !important; color: var(--cyan) !important; }
+  .btn:active          { opacity: 0.8 !important; }
+  .cta-main:active     { opacity: 0.85 !important; transform: scale(0.98) !important; }
+
+  /* Defer paint for off-screen sections */
+  #trust, #testimonials {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 600px;
+  }
+}
+
+/* ─── MOBILE CHATBOT ────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Dynamic height — shrinks when keyboard opens */
+  #n8n-chat {
+    height: min(500px, 62dvh) !important;
+    --chat--window--height: min(500px, 62dvh) !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+  }
+  /* Smooth touch scroll in message list */
+  #n8n-chat .chat-messages-list,
+  #n8n-chat [class*="messages-list"],
+  #n8n-chat [class*="messages"] {
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior: contain !important;
+    scroll-behavior: smooth !important;
+  }
+  /* ≥16px prevents iOS auto-zoom on input focus */
+  #n8n-chat input,
+  #n8n-chat textarea,
+  #n8n-chat [class*="textarea"],
+  #n8n-chat [class*="input"] textarea { font-size: 16px !important; }
+  /* Bigger send button touch target */
+  #n8n-chat [class*="send"],
+  #n8n-chat button { min-height: 44px !important; }
+  /* Remove gradient border animation — use static border */
+  .chat-window-wrap::before { display: none !important; }
+  .chat-window-wrap {
+    border-radius: 14px;
+    border: 1px solid rgba(0,212,255,0.2);
+  }
+  /* touch-action on demo section keeps scroll smooth */
+  #demo { touch-action: pan-y; }
+}
 </style>
 </head>
 <body>
@@ -2886,8 +2973,9 @@ makeCardScene('canvas-service-3', (scene) => {
   obs.observe(canvas);
 })();
 
-/* ── Stop n8n chat from auto-scrolling the page ── */
+/* ── Stop n8n chat from auto-scrolling the page (desktop only) ── */
 (function () {
+  if (IS_MOBILE) return;
 
   /* 1. Intercept scrollIntoView so chat elements scroll their own
         container instead of the whole page */
