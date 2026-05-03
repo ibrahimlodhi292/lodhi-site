@@ -135,8 +135,14 @@ body {
   background: var(--bg);
   color: var(--white);
   font-family: 'Space Mono', monospace;
-  overflow-x: hidden;
+  /* overflow-x: clip avoids creating a scroll container (unlike hidden)
+     so iOS momentum scroll never stops mid-page */
+  overflow-x: clip;
   cursor: none;
+}
+@supports not (overflow-x: clip) {
+  /* Fallback for very old browsers — accepts the iOS trade-off */
+  body { overflow-x: hidden; }
 }
 
 /* ─── NOISE OVERLAY ─────────────────────────────────── */
@@ -1977,8 +1983,16 @@ footer:hover p { color: rgba(255,255,255,0.45); }
     border-radius: 14px;
     border: 1px solid rgba(0,212,255,0.2);
   }
-  /* touch-action on demo section keeps scroll smooth */
-  #demo { touch-action: pan-y; }
+  /* Smooth scrolling hints for iOS */
+  body    { touch-action: pan-y; overscroll-behavior-y: auto; }
+  section { touch-action: pan-y; }
+
+  /* Kill expensive filter animation on about image */
+  .about-img { animation: none !important; filter: drop-shadow(0 0 8px rgba(0,212,255,0.3)) !important; }
+
+  /* Kill glow animations on badges */
+  .about-badge { animation: none !important; }
+  .demo-live-badge .badge-dot { animation: none !important; }
 }
 </style>
 </head>
@@ -2438,13 +2452,13 @@ if (!IS_MOBILE) {
    NAV HIDE / SHOW
 ════════════════════════════════════════════════════ */
 let lastY = 0;
+const _nav = document.getElementById('nav');
 window.addEventListener('scroll', () => {
-  const nav = document.getElementById('nav');
   const y = window.scrollY;
-  if (y > lastY && y > 80) nav.classList.add('hidden');
-  else nav.classList.remove('hidden');
+  if (y > lastY && y > 80) _nav.classList.add('hidden');
+  else _nav.classList.remove('hidden');
   lastY = y;
-});
+}, { passive: true });
 
 /* ════════════════════════════════════════════════════
    HERO NAME — SPLIT CHARS
